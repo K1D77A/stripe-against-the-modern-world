@@ -1,7 +1,8 @@
 # stripe-against-the-modern-world
-### _Your Name <your.name@example.com>_
 
-This is a project to do ... something.
+This is a an implementation of the Stripe API. 
+
+## This is a WIP but will be used in a production environment so expect maintenance
 
 ## License
 
