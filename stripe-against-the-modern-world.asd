@@ -8,7 +8,11 @@
   :serial t
   :pathname "api"
   :depends-on (#:str
-               #:dexador)
+               #:dexador
+               #:jonathan
+               #:alexandria
+               #:closer-mop)
   :components ((:file "package")
+               (:file "conditions")
                (:file "stripe-against-the-modern-world")))
 
