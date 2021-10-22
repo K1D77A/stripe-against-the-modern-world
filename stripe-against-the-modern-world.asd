@@ -15,5 +15,6 @@
                #:closer-mop)
   :components ((:file "package")
                (:file "conditions")
+               (:file "protocol")
                (:file "stripe-against-the-modern-world")))
 
