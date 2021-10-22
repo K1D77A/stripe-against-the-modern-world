@@ -113,7 +113,7 @@
    #:setup_intents%confirm
    #:setup_intents%cancel
 
-   #:#:setup_attempts%all
+   #:setup_attempts%all
 
    #:payouts%id
    #:payouts%all
