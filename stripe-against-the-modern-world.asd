@@ -11,6 +11,7 @@
                #:dexador
                #:jonathan
                #:alexandria
+               #:do-urlencode
                #:closer-mop)
   :components ((:file "package")
                (:file "conditions")
