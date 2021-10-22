@@ -168,7 +168,7 @@
       (with-captured-api-failure
         (jojo:parse (apply request-fun complete-url args))))))
 
-(defmethod determine-base-url ((req stripe-request))
+(defmethod determine-base-url (req)
   *url*)
 
 (defmethod determine-base-url ((req post-files-request))

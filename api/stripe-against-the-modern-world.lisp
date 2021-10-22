@@ -4,16 +4,17 @@
 
 (defparameter *api-version* "2020-08-27")
 
-
+(defparameter *api-key*
+  "sk_test_51Jn99bKazowTfVdknr4RjY5oqPKBrUV6B613Wj3afhpM76nl9QauaUPsWZo9nzxCalG8S1BUwSPewl9tDd2u28bN00D2DefuQi")
 
 (defparameter *url* "https://api.stripe.com")
 
-
+;;;core resources
 (defapi%get balance%get-balance ("/v1/balance"))
 
-(defapi%get balance-transactions%all ("/v1/balance_transactions"))
+(defapi%get balance_transactions%all ("/v1/balance_transactions"))
 
-(defapi%get balance-transactions%id ("/v1/balance_transactions/:id"))
+(defapi%get balance_transactions%id ("/v1/balance_transactions/:id"))
 
 
 
@@ -23,15 +24,15 @@
 
 (defapi%get charges%id ("/v1/charges/:id"))
 
-(defapi charges%update-id ("/v1/charges/:id" post-request))
+(defapi charges%update ("/v1/charges/:id" post-request))
 
-(defapi charges%capture-id ("/v1/charges/:id/capture" post-request))
+(defapi charges%capture ("/v1/charges/:id/capture" post-request))
 
 
 
 (defapi customers%create ("/v1/customers" post-request))
 
-(defapi customers%update-id ("/v1/customers/:id" post-request))
+(defapi customers%update ("/v1/customers/:id" post-request))
 
 (defapi%get customers%all ("/v1/customers"))
 
@@ -45,9 +46,9 @@
 
 (defapi%get disputes%id ("/v1/disputes/:id"))
 
-(defapi disputes%update-id ("/v1/disputes/:id" post-request))
+(defapi disputes%update ("/v1/disputes/:id" post-request))
 
-(defapi disputes%close-id ("/v1/disputes/:id/close" post-request))
+(defapi disputes%close ("/v1/disputes/:id/close" post-request))
 
 
 
@@ -64,18 +65,84 @@
 (defapi files%create ("/v1/files" post-files-request))
 
 
+
 (defapi%get file_links%id ("/v1/files_links/:id"))
 
 (defapi%get file_links%all ("/v1/files_links"))
 
-(defapi file_links%update-id ("/v1/files_links/:id" post-request))
+(defapi file_links%update ("/v1/files_links/:id" post-request))
 
 (defapi file_links%create ("/v1/files_links" post-request))
 
 
 
+(defapi%get mandates%id ("/v1/mandates/:id"))
 
 
+
+(defapi%get payment_intents%id ("/v1/payment_intents/:id"))
+
+(defapi%get payment_intents%all ("/v1/payment_intents"))
+
+(defapi payment_intents%create ("/v1/payment_intents" post-request))
+
+(defapi payment_intents%update ("/v1/payment_intents/:id" post-request))
+
+(defapi payment_intents%confirm ("/v1/payment_intents/:id/confirm" post-request))
+
+(defapi payment_intents%capture ("/v1/payment_intents/:id/capture" post-request))
+
+(defapi payment_intents%cancel ("/v1/payment_intents/:id/cancel" post-request))
+
+
+
+(defapi%get setup_intents%id ("/v1/setup_intents/:id"))
+
+(defapi%get setup_intents%all ("/v1/setup_intents"))
+
+(defapi setup_intents%create ("/v1/setup_intents" post-request))
+
+(defapi setup_intents%update ("/v1/setup_intents/:id" post-request))
+
+(defapi setup_intents%confirm ("/v1/setup_intents/:id/confirm" post-request))
+
+(defapi setup_intents%cancel ("/v1/setup_intents/:id/cancel" post-request))
+
+
+
+(defapi%get setup_attempts%all ("/v1/setup_attempts"))
+
+
+
+(defapi%get payouts%id ("/v1/payouts/:id"))
+
+(defapi%get payouts%all ("/v1/payouts"))
+
+(defapi payouts%create ("/v1/payouts" post-request))
+
+(defapi payouts%update ("/v1/payouts/:id" post-request))
+
+(defapi payouts%confirm ("/v1/payouts/:id/reverse" post-request))
+
+(defapi payouts%cancel ("/v1/payouts/:id/cancel" post-request))
+
+
+
+(defapi%get refunds%id ("/v1/refunds/:id"))
+
+(defapi%get refunds%all ("/v1/refunds"))
+
+(defapi refunds%create ("/v1/refunds" post-request))
+
+(defapi refunds%update ("/v1/refunds/:id" post-request))
+
+
+
+(defapi%get tokens%id ("/v1/tokens/:id"))
+
+(defapi tokens%create ("/v1/tokens" post-request))
+
+;;;payment methods
 
 
 
