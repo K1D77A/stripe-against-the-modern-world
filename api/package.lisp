@@ -128,5 +128,11 @@
    #:refunds%update
 
    #:tokens%id
-   #:tokens%create))
+   #:tokens%create
+
+   #:products%create
+   #:products%id
+   #:products%update
+   #:products%all
+   #:products%delete))
            

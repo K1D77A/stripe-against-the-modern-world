@@ -146,7 +146,16 @@
 
 
 
+;;;products
 
+(defapi products%create ("/v1/products" post-request))
 
+(defapi%get products%id ("/v1/products/:id"))
+
+(defapi products%update ("/v1/products/:id" post-request))
+
+(defapi%get products%all ("/v1/products"))
+
+(defapi%delete products%delete ("/v1/products/:id"))
 
 
