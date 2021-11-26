@@ -134,5 +134,16 @@
    #:products%id
    #:products%update
    #:products%all
-   #:products%delete))
-           
+   #:products%delete
+
+   #:prices%create
+   #:prices%update
+   #:prices%id
+   #:prices%all
+
+   ;;helpers
+   #:encode-content
+   #:ec
+
+   ))
+

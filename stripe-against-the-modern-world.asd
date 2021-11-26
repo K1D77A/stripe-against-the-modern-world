@@ -16,5 +16,6 @@
   :components ((:file "package")
                (:file "conditions")
                (:file "protocol")
+               (:file "helpers")
                (:file "stripe-against-the-modern-world")))
 

@@ -109,7 +109,7 @@
                                     :collect
                                     (if (stringp slot?)
                                         slot? 
-                                        (do-urlencode:urlencode
+                                        (quri:url-encode 
                                          (slot-value request slot?)))))))
           (lambda (request)
             (declare (ignore request))
@@ -178,4 +178,5 @@
 (defmethod generate-url ((req stripe-request))
   (with-accessors ((string-constructor string-constructor))
       (class-of req)
-    (format nil "~A~A" (determine-base-url req) (funcall (in-list string-constructor) req))))
+    (format nil "~A~A" (determine-base-url req)
+            (funcall (in-list string-constructor) req))))

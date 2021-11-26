@@ -158,4 +158,27 @@
 
 (defapi%delete products%delete ("/v1/products/:id"))
 
+;;;prices
 
+(defapi prices%create ("/v1/prices" post-request))
+
+(defapi%get prices%id ("/v1/prices/:id"))
+
+(defapi prices%update ("/v1/prices/:id" post-request))
+
+(defapi%get prices%all ("/v1/prices"))
+
+
+
+;;;checkouts
+
+
+(defapi sessions%create ("/v1/checkout/sessions" post-request))
+
+(defapi sessions%expire ("/v1/checkout/sessions/:id/expire" post-request))
+
+(defapi%get sessions%get ("/v1/checkout/sessions/:id"))
+
+(defapi%get sessions%all ("/v1/checkout/sessions"))
+
+(defapi%get sessions%line-items ("/v1/checkout/sessions/:id/line_items"))
