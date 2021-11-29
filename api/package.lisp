@@ -141,8 +141,12 @@
    #:prices%id
    #:prices%all
 
+   #:sessions%create
+   #:sessions%expire
+   #:sessions%get
+   #:sessions%line-items
+
    ;;helpers
-   #:encode-content
    #:ec
 
    ))
