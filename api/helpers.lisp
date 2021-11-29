@@ -1,7 +1,12 @@
 (in-package #:stripe-against-the-modern-world)
-;;;we use dexador to send the application-form data, this requires an alist, however
-;;;they provide no default means of sending arrays, if you put a list in the alist
-;;;it is not automatically modified.
+
+#||
+Below is the definition of a primitive DSL which will convert a list into an 
+alist that can be passed as the :content key to dex:post. Unfortunately although
+it has some of the code required to work with many nested arrays it will 
+only work for a single depth array right now.
+
+||#
 
 (defparameter *test* 
   '(("fur" . "fluffy")
@@ -17,6 +22,31 @@
      ("colour" . "brown"))
     ("fur" . "fluffy")
     ("colour" . "brown")))
+
+(defparameter *test2* 
+  '(("fur" . "fluffy")
+    ("cat" . "dog")
+    (:array "animals"
+     ("oof" . "doof")
+     ("kaboof" . "foo")
+     ("dog"
+      "cat"
+      "bird"))
+    (:array "images"
+     ("fur" . "fluffy")
+     ("colour" . "brown")
+     (:array "nested-images"
+      ("fluff" . "fluffy")
+      ("pos" "foo" "bar")))
+    ("fur" . "fluffy")
+    ("colour" . "brown")))
+
+#||
+(ec *test2*)
+=> 
+broken.
+Dont nest arrays in arrays.
+||#
 
 #||
 (ec *test* )
