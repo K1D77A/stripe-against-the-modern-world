@@ -35,6 +35,25 @@ SATMW> (make-instance 'charges%create :content '(("amount" . 100)("currency" . "
 ```
 Dexador is used to send the requests so it must be a properly formed ALIST.
 
+## Alist construct
+In `src/helpers.lisp` I have built a very simple DSL which will parse into an alist, you can pass the result of evaluating this as the :content key to dex:post. 
+```lisp
+SATMW> *test*
+(("fur" . "fluffy") ("cat" . "dog")
+ (:ARRAY "animals" ("oof" . "doof") ("kaboof" . "foo") ("dog" "cat" "bird"))
+ (:ARRAY "images" ("fur" . "fluffy") ("colour" . "brown")) ("fur" . "fluffy")
+ ("colour" . "brown"))
+SATMW> (ec *)
+(("fur" . "fluffy") ("cat" . "dog") ("animals[0][oof]" . "doof")
+ ("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
+ ("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
+ ("images[0][colour]" . "brown") ("fur" . "fluffy") ("colour" . "brown"))
+ ```
+ It accepts an arbitrary number of lists and appends them together. 
+ The DSL means you can create an alist that will correctly format as a form-url encoded string, this is annoying but its how Stripe handles requests...
+ 
+ It doesn't support nested arrays.
+
 
 ## License
 
