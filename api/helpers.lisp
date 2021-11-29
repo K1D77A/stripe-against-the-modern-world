@@ -50,22 +50,24 @@ only work for a single depth array right now.
 #||
 (ec *test2*)
 => 
-(("animals[0][oof]" . "doof") ("animals[0][kaboof]" . "foo")
-("animals[1]" . "dog") ("animals[2]" . "cat") ("animals[3]" . "bird")
-("images[0][fur]" . "fluffy") ("images[0][colour]" . "brown")
-("images[1][0][fluff]" . "fluffy") ("images[1][1]" . "pos")
-("images[1][2]" . "foo") ("images[1][3]" . "bar") ("cats[0]" . "brown")
-("cats[1]" . "white") ("cats[2]" . "black"))
+(("fur" . "fluffy") ("cat" . "dog") ("animals[0][oof]" . "doof")
+ ("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
+ ("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
+ ("images[0][colour]" . "brown") ("images[1][0][fluff]" . "fluffy")
+ ("images[1][1]" . "pos") ("images[1][2]" . "foo") ("images[1][3]" . "bar")
+ ("cats[0]" . "brown") ("cats[1]" . "white") ("cats[2]" . "black")
+ ("fur" . "fluffy") ("colour" . "brown"))
 ||#
 
 #||
 (ec *test* )
 =>
-(("woofers[0]" . "dog") ("woofers[1]" . "wolf")
-("woofers[2][smol]" . "shih-tzu") ("woofers[2][big]" . "labrador")
-("animals[0][oof]" . "doof") ("animals[0][kaboof]" . "foo")
-("animals[1]" . "dog") ("animals[2]" . "cat") ("animals[3]" . "bird")
-("images[0][fur]" . "fluffy") ("images[0][colour]" . "brown"))
+(("fur" . "fluffy") ("cat" . "dog") ("woofers[0]" . "dog")
+ ("woofers[1]" . "wolf") ("woofers[2][smol]" . "shih-tzu")
+ ("woofers[2][big]" . "labrador") ("animals[0][oof]" . "doof")
+ ("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
+ ("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
+ ("images[0][colour]" . "brown") ("fur" . "fluffy") ("colour" . "brown"))
 ||#
 
 (defun format-object-in-array (array-name positions slot-name val)
@@ -131,7 +133,7 @@ only work for a single depth array right now.
                              (res-list acc))
                        (incf (the fixnum pos)))))
           ((stringp (cdr list));basic object
-           (push list acc)))))
+           (push list (res-list acc))))))
 
 (defmethod process-obj ((type (eql :array)) list env acc)
   (declare (optimize (speed 3) (safety 1)))
@@ -164,7 +166,7 @@ only work for a single depth array right now.
         lists))
 
 (defun ec (&rest lists)
-  (let ((res (make-res)))
+  (let ((res (make-res :list ())))
     (apply #'construct-alist res lists)
     (nreverse (res-list res))))
 
