@@ -11,15 +11,19 @@ only work for a single depth array right now.
 (defparameter *test* 
   '(("fur" . "fluffy")
     ("cat" . "dog")
+    (:array "woofers"
+     ("dog" "wolf")
+     (("smol" . "shih-tzu")
+      ("big" . "labrador")))
     (:array "animals"
-     ("oof" . "doof")
-     ("kaboof" . "foo")
+     (("oof" . "doof")
+      ("kaboof" . "foo"))
      ("dog"
       "cat"
       "bird"))
     (:array "images"
-     ("fur" . "fluffy")
-     ("colour" . "brown"))
+     (("fur" . "fluffy")
+      ("colour" . "brown")))
     ("fur" . "fluffy")
     ("colour" . "brown")))
 
@@ -27,34 +31,41 @@ only work for a single depth array right now.
   '(("fur" . "fluffy")
     ("cat" . "dog")
     (:array "animals"
-     ("oof" . "doof")
-     ("kaboof" . "foo")
+     (("oof" . "doof")
+      ("kaboof" . "foo"))
      ("dog"
       "cat"
       "bird"))
     (:array "images"
-     ("fur" . "fluffy")
-     ("colour" . "brown")
+     (("fur" . "fluffy")
+      ("colour" . "brown"))
      (:array "nested-images"
-      ("fluff" . "fluffy")
+      (("fluff" . "fluffy"))
       ("pos" "foo" "bar")))
+    (:array "cats"
+     ("brown" "white" "black"))
     ("fur" . "fluffy")
     ("colour" . "brown")))
 
 #||
 (ec *test2*)
 => 
-broken.
-Dont nest arrays in arrays.
+(("animals[0][oof]" . "doof") ("animals[0][kaboof]" . "foo")
+("animals[1]" . "dog") ("animals[2]" . "cat") ("animals[3]" . "bird")
+("images[0][fur]" . "fluffy") ("images[0][colour]" . "brown")
+("images[1][0][fluff]" . "fluffy") ("images[1][1]" . "pos")
+("images[1][2]" . "foo") ("images[1][3]" . "bar") ("cats[0]" . "brown")
+("cats[1]" . "white") ("cats[2]" . "black"))
 ||#
 
 #||
 (ec *test* )
 =>
-(("fur" . "fluffy") ("cat" . "dog") ("animals[0][oof]" . "doof")
-("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
-("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
-("images[0][colour]" . "brown") ("fur" . "fluffy") ("colour" . "brown"))
+(("woofers[0]" . "dog") ("woofers[1]" . "wolf")
+("woofers[2][smol]" . "shih-tzu") ("woofers[2][big]" . "labrador")
+("animals[0][oof]" . "doof") ("animals[0][kaboof]" . "foo")
+("animals[1]" . "dog") ("animals[2]" . "cat") ("animals[3]" . "bird")
+("images[0][fur]" . "fluffy") ("images[0][colour]" . "brown"))
 ||#
 
 (defun format-object-in-array (array-name positions slot-name val)
@@ -79,71 +90,82 @@ Dont nest arrays in arrays.
   (alexandria:with-gensyms (previous)
     `(symbol-macrolet ((arr (getf ,env :array-name)))
        (let ((,previous arr))
-         (setf arr ,array-name)
+         (unless arr
+           (setf arr ,array-name))
          (unwind-protect
               (locally ,@body)
            (setf arr ,previous))))))
 
-(defmethod process-obj ((type (eql :object)) list env)
-  (destructure-environment (env)
-    (cond ((and positions array-name (stringp (cdr list)));obj inside array 
-           (format-object-in-array array-name positions (car list) (cdr list)))
-          ((and positions (listp (cdr list)))
-           (with-increment-current-pos (env)
-             (let ((current (first positions)))
-               (loop :for ele :in list
-                     :for pos :from current :upto (+ current (length list))
-                     :collect (format-basic-array array-name (list pos) ele)))))          
-          ((stringp (cdr list));basic object
-           (list (list list))))))
-
-(defmacro with-increment-current-pos ((env) &body body)
+(defmacro with-resetting-current-pos ((env) &body body)
   (alexandria:with-gensyms (pos prev)
     `(let* ((,pos (getf ,env :positions))
             (,prev (first ,pos)))
-       (incf (first ,pos))
        (unwind-protect
             (locally ,@body)
          (setf (first (getf ,env :positions)) ,prev)))))
 
+(defmacro with-current-pos ((env) &body body)
+  `(symbol-macrolet ((pos (first (getf ,env :positions))))
+     (locally ,@body)))
+
 (defmacro with-new-pos ((env) &body body)
-  `(progn (push 0 (getf ,env :positions))
+  `(progn (push (the fixnum 0) (getf ,env :positions))
           (prog1 (locally ,@body)
             (setf (getf ,env :positions)
                   (rest (getf ,env :positions))))))
 
-(defmethod process-obj ((type (eql :array)) list env)
+(defmethod process-obj ((type (eql :object)) list env acc)
+  (declare (optimize (speed 3) (safety 1)))
+  (destructure-environment (env)
+    (cond ((and positions array-name (listp (first list)));obj inside array
+           (with-current-pos (env)
+             (loop :for ele :in list
+                   :do (push (format-object-in-array array-name (reverse positions)
+                                                     (car ele) (cdr ele))
+                             (res-list acc))
+                   :finally (incf (the fixnum pos)))))
+          ((and positions array-name (stringp (first list)))
+           (with-current-pos (env)
+             (loop :for ele :in list
+                   :do (push (format-basic-array array-name (reverse positions) ele)
+                             (res-list acc))
+                       (incf (the fixnum pos)))))
+          ((stringp (cdr list));basic object
+           (push list acc)))))
+
+(defmethod process-obj ((type (eql :array)) list env acc)
+  (declare (optimize (speed 3) (safety 1)))
   (with-changed-array ((second list))
                       env
     (with-new-pos (env)
-      (prog1 (let ((cddr (cddr list)))
-               (loop :for list :in cddr 
-                     :for x :from 0 :upto (length cddr)
-                     :collect (rec list env)))))))
+      (let ((cddr (cddr list)))
+        (with-resetting-current-pos (env)
+          (loop :for lst :in cddr
+                :do (rec lst env acc))
+          acc)))))
 
-(defmethod process-obj :around (type list env)
-  (let ((res (call-next-method)))
-    (if (stringp (first res))
-        (list res)
-        res)))
+(defmethod process-obj :around (type list env acc)
+  (call-next-method))
 
-(defun entry (list env)
-  (reduce #'nconc
-          (destructure-environment (env)
-            (loop :for list :in list
-                  :nconcing (rec list env)))))
+(defun entry (list env acc)
+  (loop :for list :in list
+        :do (rec list env acc)))
 
-(defun rec (list env)
-  (let* ((type (determine-list-type list))
-         (res  (process-obj type list env)))
-    (if (stringp (first res))
-        res res)))
+(defun rec (list env acc)
+  (let ((type (determine-list-type list)))
+    (process-obj type list env acc)))
 
-(defun construct-alist (&rest lists)
-  (loop :for list :in lists
-        :appending (entry list nil)))
+(defstruct res
+  list)
+
+(defun construct-alist (acc &rest lists)
+  (mapc (lambda (list)
+          (entry list () acc))
+        lists))
 
 (defun ec (&rest lists)
-  (apply #'construct-alist lists))
+  (let ((res (make-res)))
+    (apply #'construct-alist res lists)
+    (nreverse (res-list res))))
 
 

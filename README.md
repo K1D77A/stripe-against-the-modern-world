@@ -38,21 +38,65 @@ Dexador is used to send the requests so it must be a properly formed ALIST.
 ## Alist construct
 In `src/helpers.lisp` I have built a very simple DSL which will parse into an alist, you can pass the result of evaluating this as the :content key to dex:post. 
 ```lisp
-SATMW> *test*
-(("fur" . "fluffy") ("cat" . "dog")
- (:ARRAY "animals" ("oof" . "doof") ("kaboof" . "foo") ("dog" "cat" "bird"))
- (:ARRAY "images" ("fur" . "fluffy") ("colour" . "brown")) ("fur" . "fluffy")
- ("colour" . "brown"))
-SATMW> (ec *)
-(("fur" . "fluffy") ("cat" . "dog") ("animals[0][oof]" . "doof")
- ("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
- ("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
- ("images[0][colour]" . "brown") ("fur" . "fluffy") ("colour" . "brown"))
+(defparameter *test* 
+  '(("fur" . "fluffy")
+    ("cat" . "dog")
+    (:array "woofers"
+     ("dog" "wolf")
+     (("smol" . "shih-tzu")
+      ("big" . "labrador")))
+    (:array "animals"
+     (("oof" . "doof")
+      ("kaboof" . "foo"))
+     ("dog"
+      "cat"
+      "bird"))
+    (:array "images"
+     (("fur" . "fluffy")
+      ("colour" . "brown")))
+    ("fur" . "fluffy")
+    ("colour" . "brown")))
+
+SATMW> (ec *test*)
+(("woofers[0]" . "dog") ("woofers[1]" . "wolf")
+ ("woofers[2][smol]" . "shih-tzu") ("woofers[2][big]" . "labrador")
+ ("animals[0][oof]" . "doof") ("animals[0][kaboof]" . "foo")
+ ("animals[1]" . "dog") ("animals[2]" . "cat") ("animals[3]" . "bird")
+ ("images[0][fur]" . "fluffy") ("images[0][colour]" . "brown"))
  ```
  It accepts an arbitrary number of lists and appends them together. 
  The DSL means you can create an alist that will correctly format as a form-url encoded string, this is annoying but its how Stripe handles requests...
  
- It doesn't support nested arrays.
+Supports nested arrays although I've never tested it.
+```lisp
+(defparameter *test2* 
+  '(("fur" . "fluffy")
+    ("cat" . "dog")
+    (:array "animals"
+     (("oof" . "doof")
+      ("kaboof" . "foo"))
+     ("dog"
+      "cat"
+      "bird"))
+    (:array "images"
+     (("fur" . "fluffy")
+      ("colour" . "brown"))
+     (:array "nested-images"
+      (("fluff" . "fluffy"))
+      ("pos" "foo" "bar")))
+    (:array "cats"
+     ("brown" "white" "black"))
+    ("fur" . "fluffy")
+    ("colour" . "brown")))
+
+SATMW> (ec *test2*)
+(("animals[0][oof]" . "doof") ("animals[0][kaboof]" . "foo")
+ ("animals[1]" . "dog") ("animals[2]" . "cat") ("animals[3]" . "bird")
+ ("images[0][fur]" . "fluffy") ("images[0][colour]" . "brown")
+ ("images[1][0][fluff]" . "fluffy") ("images[1][1]" . "pos")
+ ("images[1][2]" . "foo") ("images[1][3]" . "bar") ("cats[0]" . "brown")
+ ("cats[1]" . "white") ("cats[2]" . "black"))
+```
 
 
 ## License
