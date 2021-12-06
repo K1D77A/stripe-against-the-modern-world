@@ -65,8 +65,9 @@
 
    ;;webhooks
    #:verify-signature
+   #:verify-webhook
 
-           ;;;core functionality
+   ;;core functionality
    #:balance%get-balance
    #:balance_transactions%all
    #:balance_transactions%id

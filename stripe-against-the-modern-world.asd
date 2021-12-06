@@ -12,7 +12,8 @@
                #:jonathan
                #:alexandria
                #:ironclad
-               #:local-time 
+               #:local-time
+               #:ningle
                #:do-urlencode
                #:closer-mop)
   :components ((:file "package")

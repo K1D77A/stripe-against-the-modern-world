@@ -105,11 +105,25 @@ SATMW> (ec *test2*)
 To verify the webhooks from Stripe you need to follow the instructions here:
 https://stripe.com/docs/webhooks/signatures
 
-Extract the raw-body, the signature (v1 or v0 for testing), and the timestamp then 
+Extract the raw-body, the signature (v1), and the timestamp then 
 pass them as arguments to `verify-signature`. This returns a boolean (t or nil) 
 to tell you if it validated and the time difference between the timestamp received 
 and `local-time:now`
 
+There is currently one build in method to validate instances `lack.request:request`
+these are the wrappers created by Ningle (which uses clack and lack), so you can `verify-webhook` with `ningle:*request*` and your signing secret. See `./api/webhooks.lisp` to see how to implement verification for other servers.
+
+An example of `verify-webhook` from Ningle:
+```lisp
+(setf (ningle/app:route *app* *stripe-webhook* :method :post)
+      (lambda (params)
+        (declare (ignore params))
+        (multiple-value-bind (validp time-dif)
+            (satmw:verify-webhook *stripe-webhook-signing-secret* ningle:*request*)
+          (if validp
+              ..
+              ..))))
+```
 
 
 ## License
