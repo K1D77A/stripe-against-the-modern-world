@@ -12,6 +12,8 @@ https://stripe.com/docs/webhooks/signatures#verify-manually
   str)
 
 (defun compute-signature (signature timestamp raw-body)
+  "Convert everything that is not an array to an array and then compute a hmac. Return 
+a hex string as the final result."
   (let ((bytes (concatenate '(vector (unsigned-byte 8))
                             (->array timestamp)
                             (->array ".")
@@ -51,7 +53,7 @@ valid (bool) and the difference between TIMESTAMP and #'local-time:now (unix epo
               split)
         (let ((raw (%request-raw-body ningle:*request*)))
           (multiple-value-bind (validp time-dif)
-              (verify-signature signing-secret (gethash "v1" hash) (gethash "t" hash) raw )
+              (verify-signature signing-secret (gethash "v1" hash) (gethash "t" hash) raw)
             (values validp time-dif raw)))))))
 
 (defmethod no-applicable-method ((fun (eql #'verify-webhook)) &rest args)
