@@ -113,16 +113,18 @@ and `local-time:now`
 There is currently one build in method to validate instances `lack.request:request`
 these are the wrappers created by Ningle (which uses clack and lack), so you can `verify-webhook` with `ningle:*request*` and your signing secret. See `./api/webhooks.lisp` to see how to implement verification for other servers.
 
-An example of `verify-webhook` from Ningle:
+An example of `verify-webhook` with Ningle:
 ```lisp
 (setf (ningle/app:route *app* *stripe-webhook* :method :post)
       (lambda (params)
         (declare (ignore params))
-        (multiple-value-bind (validp time-dif)
+        (multiple-value-bind (validp time-dif raw)
             (satmw:verify-webhook *stripe-webhook-signing-secret* ningle:*request*)
-          (if validp
-              ..
-              ..))))
+          (if (validate-webhook :stripe validp time-dif)
+              "fail"
+              (let* ((parsed (jojo:parse (babel:octets-to-string raw)
+                                         :as :hash-table)))
+                (process-webhook :stripe parsed))))))
 ```
 
 
