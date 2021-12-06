@@ -20,7 +20,6 @@ https://stripe.com/docs/webhooks/signatures#verify-manually
                                   :sha256)))
     (ironclad:update-hmac hmac bytes)
     (ironclad:byte-array-to-hex-string (crypto:hmac-digest hmac))))
-;;    (ironclad::hkdf-extract 'ironclad:sha256 bytes (->array signature))))
 
 (defun verify-signature (signing-secret v1 timestamp raw-body)
   "Verifies the received V1 using TIMESTAMP and RAW-BODY. Returns whether it is 
@@ -28,7 +27,6 @@ valid (bool) and the difference between TIMESTAMP and #'local-time:now (unix epo
   (let* ((ss (->array signing-secret))
          (genned (compute-signature ss timestamp raw-body))
          (ts (parse-integer timestamp)))
-    (print ts)
     (values (string= v1 genned)
             (- (local-time:timestamp-to-unix (local-time:now)) ts))))
 
