@@ -28,6 +28,7 @@ valid (bool) and the difference between TIMESTAMP and #'local-time:now (unix epo
   (let* ((ss (->array signing-secret))
          (genned (compute-signature ss timestamp raw-body))
          (ts (parse-integer timestamp)))
+    (print ts)
     (values (string= v1 genned)
             (- (local-time:timestamp-to-unix (local-time:now)) ts))))
 
@@ -47,13 +48,13 @@ valid (bool) and the difference between TIMESTAMP and #'local-time:now (unix epo
       (let ((split (str:split #\, signatures :omit-nulls t)))
         (mapc (lambda (split)
                 (destructuring-bind (key val)
-                    (str:split #\= split)
+                    (str:split #\= split :omit-nulls t)
                   (setf (gethash key hash) val)))
               split)
-        (verify-signature signing-secret
-                          (gethash "v1" hash)
-                          (gethash "timestamp" hash)
-                          (%request-raw-body ningle:*request*))))))
+        (let ((raw (%request-raw-body ningle:*request*)))
+          (multiple-value-bind (validp time-dif)
+              (verify-signature signing-secret (gethash "v1" hash) (gethash "t" hash) raw )
+            (values validp time-dif raw)))))))
 
 (defmethod no-applicable-method ((fun (eql #'verify-webhook)) &rest args)
   (declare (ignore args))
