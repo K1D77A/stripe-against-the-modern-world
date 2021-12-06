@@ -63,6 +63,9 @@
    
    #:id
 
+   ;;webhooks
+   #:verify-signature
+
            ;;;core functionality
    #:balance%get-balance
    #:balance_transactions%all
@@ -145,6 +148,11 @@
    #:sessions%expire
    #:sessions%get
    #:sessions%line-items
+
+   #:shipping%create
+   #:shipping%get
+   #:shipping%update
+   #:shipping%all
 
    ;;helpers
    #:ec

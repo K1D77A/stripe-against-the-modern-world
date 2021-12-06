@@ -173,12 +173,10 @@
 ;;;checkouts
 
 
-(defapi sessions%create ("/v1/checkout/sessions" post-request))
+(defapi shipping%create ("/v1/shipping_rates" post-request))
 
-(defapi sessions%expire ("/v1/checkout/sessions/:id/expire" post-request))
+(defapi%get shipping%get ("/v1/shipping_rates/:id"))
 
-(defapi%get sessions%get ("/v1/checkout/sessions/:id"))
+(defapi%get shipping%all ("/v1/shipping_rates"))
 
-(defapi%get sessions%all ("/v1/checkout/sessions"))
-
-(defapi%get sessions%line-items ("/v1/checkout/sessions/:id/line_items"))
+(defapi shipping%update ("/v1/shipping_rates/:id" post-request))

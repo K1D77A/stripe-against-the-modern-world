@@ -100,6 +100,17 @@ SATMW> (ec *test2*)
  ("fur" . "fluffy") ("colour" . "brown"))
 ```
 
+## Webhooks
+
+To verify the webhooks from Stripe you need to follow the instructions here:
+https://stripe.com/docs/webhooks/signatures
+
+Extract the raw-body, the signature (v1 or v0 for testing), and the timestamp then 
+pass them as arguments to `verify-signature`. This returns a boolean (t or nil) 
+to tell you if it validated and the time difference between the timestamp received 
+and `local-time:now`
+
+
 
 ## License
 
