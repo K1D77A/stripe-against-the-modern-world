@@ -2,7 +2,7 @@
 
 This is a an implementation of the Stripe API. 
 
-Currently have wrapped the section Core Resources.
+Currently have wrapped the section Core Resources and under Products the products, prices and shipping then, under Checkout the sessions and finally under Webhooks the webhooks. 
 
 ## This is a WIP but will be used in a production environment so expect maintenance
 

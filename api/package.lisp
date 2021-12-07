@@ -155,6 +155,12 @@
    #:shipping%update
    #:shipping%all
 
+   #:webhooks%create
+   #:webhooks%get
+   #:webhooks%all
+   #:webhooks%update
+   #:webhooks%delete
+
    ;;helpers
    #:ec
 

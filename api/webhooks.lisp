@@ -32,8 +32,6 @@ valid (bool) and the difference between TIMESTAMP and #'local-time:now (unix epo
     (values (string= v1 genned)
             (- (local-time:timestamp-to-unix (local-time:now)) ts))))
 
-
-
 (defmethod verify-webhook (signing-secret (request LACK.REQUEST:REQUEST))
   ;;this could fail on multiple v1's idk... they are a bit vague about it in the spec
   (let* ((headers (lack.request:request-headers ningle:*request*))

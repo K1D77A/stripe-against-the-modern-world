@@ -173,6 +173,20 @@
 ;;;checkouts
 
 
+(defapi sessions%create ("/v1/checkout/sessions" post-request))
+
+(defapi sessions%expire ("/v1/checkout/sessions/:id/expire" post-request))
+
+(defapi%get sessions%get ("/v1/checkout/sessions/:id"))
+
+(defapi%get sessions%all ("/v1/checkout/sessions"))
+
+(defapi%get sessions%line-items ("/v1/checkout/sessions/:id/line_items"))
+
+
+;;;shipping
+
+
 (defapi shipping%create ("/v1/shipping_rates" post-request))
 
 (defapi%get shipping%get ("/v1/shipping_rates/:id"))
@@ -180,3 +194,17 @@
 (defapi%get shipping%all ("/v1/shipping_rates"))
 
 (defapi shipping%update ("/v1/shipping_rates/:id" post-request))
+
+
+;;;webhooks
+
+
+(defapi webhooks%create ("/v1/webhook_endpoints" post-request))
+
+(defapi%get webhooks%get ("/v1/webhook_endpoints/:id"))
+
+(defapi%get webhooks%all ("/v1/webhook_endpoints"))
+
+(defapi webhooks%update ("/v1/webhook_endpoints/:id" post-request))
+
+(defapi%delete webhooks%delete ("/v1/webhook_endpoints/:id"))
