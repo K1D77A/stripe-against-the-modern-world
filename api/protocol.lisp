@@ -1,5 +1,9 @@
 (in-package #:stripe-against-the-modern-world)
 
+(defparameter *parser* (lambda (val)
+                         (jojo:parse val))
+  "Used to parse data with call-api. Defaults to jojo's plist, swap to a function that accepts one arg.")
+
 (defclass api-call (c2mop:funcallable-standard-class)
   ((string-constructor
     :accessor string-constructor
@@ -166,7 +170,7 @@
     (let ((complete-url (generate-url req))
           (args (form-dex-args req)))
       (with-captured-api-failure
-        (jojo:parse (apply request-fun complete-url args))))))
+       (funcall *parser* (apply request-fun complete-url args))))))
 
 (defmethod determine-base-url (req)
   *url*)

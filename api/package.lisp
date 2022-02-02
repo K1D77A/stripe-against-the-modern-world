@@ -4,6 +4,7 @@
   (:use #:cl)
   (:nicknames #:satmw)
   (:export
+   #:*parser*
    ;;;conditions
    #:stripe-condition
 
