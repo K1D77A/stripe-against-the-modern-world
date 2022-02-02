@@ -1,8 +1,7 @@
 (in-package #:stripe-against-the-modern-world)
 
-(defparameter *parser* (lambda (val)
-                         (jojo:parse val))
-  "Used to parse data with call-api. Defaults to jojo's plist, swap to a function that accepts one arg.")
+(defparameter *parse-as* :plist
+  "Used to parse data with call-api. Defaults to jojo's :plist, can be any valid parser key, best use :hash-table")
 
 (defclass api-call (c2mop:funcallable-standard-class)
   ((string-constructor
@@ -177,7 +176,6 @@
 
 (defmethod determine-base-url ((req post-files-request))
   "https://files.stripe.com")
-
 
 (defmethod generate-url ((req stripe-request))
   (with-accessors ((string-constructor string-constructor))

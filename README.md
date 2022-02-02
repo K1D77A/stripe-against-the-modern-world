@@ -10,10 +10,9 @@ Currently have wrapped the section Core Resources and under Products the product
 
 
 ## How to 
-To change the default parser from jojo's plist to a hash-table change `*parser*` to
-```lisp
-(setf *parser* (lambda (val) (jojo:parse val :as :hash-table)))
-```
+To change the default parser from jojo's plist to a hash-table change `*parse-as*` to 
+a valid (jojo:parse <content> :as <key>), I suggest :hash-table
+
 
 First you have to set `*api-key*` to your api key from stripe, you can do this lexically ofcourse. Best run a few tests, so use your test keys first.
 
