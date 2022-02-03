@@ -1,8 +1,5 @@
 (in-package #:stripe-against-the-modern-world)
 
-(defparameter *parse-as* :plist
-  "Used to parse data with call-api. Defaults to jojo's :plist, can be any valid parser key, best use :hash-table")
-
 (defclass api-call (c2mop:funcallable-standard-class)
   ((string-constructor
     :accessor string-constructor
