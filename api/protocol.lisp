@@ -166,7 +166,7 @@
     (let ((complete-url (generate-url req))
           (args (form-dex-args req)))
       (with-captured-api-failure
-       (funcall *parser* (apply request-fun complete-url args))))))
+       (jojo:parse (apply request-fun complete-url args) :as *parse-as*)))))
 
 (defmethod determine-base-url (req)
   *url*)
