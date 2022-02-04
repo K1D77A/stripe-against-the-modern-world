@@ -47,27 +47,46 @@ only work for a single depth array right now.
     ("fur" . "fluffy")
     ("colour" . "brown")))
 
+(defparameter *test3*
+  (jojo:parse "{
+  \"id\": \"prod_L5RRGNG2CUWAS4\",
+  \"object\": \"product\",
+  \"active\": true,
+  \"created\": 1643937936,
+  \"images\": [1,2,3],
+  \"livemode\": false,
+  \"metadata\": [{
+    \"order_id\": \"6735\"
+  },{
+    \"order_id\": \"6736\"
+     \"crack\" : [1, 2, 3]
+  }],
+  \"hoes\": [1,2,3],
+  \"name\": \"Pro (beta testing, monthly subscription)\",
+  \"updated\": 1643937936
+}" :as :hash-table))
+
 #||
 (ec *test2*)
 => 
 (("fur" . "fluffy") ("cat" . "dog") ("animals[0][oof]" . "doof")
- ("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
- ("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
- ("images[0][colour]" . "brown") ("images[1][0][fluff]" . "fluffy")
- ("images[1][1]" . "pos") ("images[1][2]" . "foo") ("images[1][3]" . "bar")
- ("cats[0]" . "brown") ("cats[1]" . "white") ("cats[2]" . "black")
- ("fur" . "fluffy") ("colour" . "brown"))
+("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
+("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
+("images[0][colour]" . "brown") ("images[1][0][fluff]" . "fluffy")
+("images[1][1]" . "pos") ("images[1][2]" . "foo") ("images[1][3]" . "bar")
+("cats[0]" . "brown") ("cats[1]" . "white") ("cats[2]" . "black")
+("fur" . "fluffy") ("colour" . "brown"))
 ||#
 
 #||
 (ec *test* )
 =>
 (("fur" . "fluffy") ("cat" . "dog") ("woofers[0]" . "dog")
- ("woofers[1]" . "wolf") ("woofers[2][smol]" . "shih-tzu")
- ("woofers[2][big]" . "labrador") ("animals[0][oof]" . "doof")
- ("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
- ("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
- ("images[0][colour]" . "brown") ("fur" . "fluffy") ("colour" . "brown"))
+("woofers[1]" . "wolf") ("woofers[2][smol]" . "shih-tzu")
+("woofers[2][big]" . "labrador") ("animals[0][oof]" . "doof")
+("animals[0][kaboof]" . "foo") ("animals[1]" . "dog") ("animals[2]" . "cat")
+("animals[3]" . "bird") ("images[0][fur]" . "fluffy")
+("images[0][colour]" . "brown") ("fur" . "fluffy") ("colour" . "brown"))
 ||#
 
 (defun format-object-in-array (array-name positions slot-name val)
@@ -169,5 +188,58 @@ only work for a single depth array right now.
   (let ((res (make-res :list ())))
     (apply #'construct-alist res lists)
     (nreverse (res-list res))))
+
+#||
+Here lies some code to convert hash tables into the horrible url encoding stripe uses.
+||#
+
+
+(defclass env ()
+  ((parents
+    :accessor parents
+    :initform ())
+   (pos
+    :accessor pos
+    :initform 0)
+   (res
+    :accessor res
+    :initform ())))
+
+(defgeneric encode-by-type (key val env))
+
+(defmethod encode-by-type (key val env)
+  (with-accessors ((parents parents)
+                   (pos pos))
+      env
+    (cond ((and (null parents)
+                (zerop pos))
+           (cons key val))
+          ((and (null parents)
+                (not (zerop pos)))
+           (cons (format nil "~A[~D]" key pos) val)))))
+
+(defmethod encode-by-type ((key string) (val hash-table) env)
+  (push val (parents env))
+  (parse-hash val env)
+  (pop (parents env)))
+
+(defmethod encode-by-type ((key string) (val list) env)
+  (with-accessors ((pos pos)
+                   (res res))
+      env
+    (let ((before pos))
+      (dolist (ele val)
+        (push (encode-by-type key ele env) res)
+        (incf pos))
+      (setf pos before))))
+
+(defun parse-hash (hash env)
+  (maphash (lambda (key val)
+             (push (encode-by-type key val env) (res env)))
+           hash)
+  (res env))
+
+
+
 
 
