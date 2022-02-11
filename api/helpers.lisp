@@ -238,8 +238,3 @@ Here lies some code to convert hash tables into the horrible url encoding stripe
              (push (encode-by-type key val env) (res env)))
            hash)
   (res env))
-
-
-
-
-
