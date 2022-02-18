@@ -179,62 +179,92 @@ only work for a single depth array right now.
 (defstruct res
   list)
 
-(defun construct-alist (acc &rest lists)
-  (mapc (lambda (list)
-          (entry list () acc))
-        lists))
+(defun construct-alist (list)
+  (let ((acc (make-res :list ())))
+    (entry list () acc)
+    (res-list acc)))
 
-(defun ec (&rest lists)
-  (let ((res (make-res :list ())))
-    (apply #'construct-alist res lists)
-    (nreverse (res-list res))))
-
+(defun ec (&rest entries)
+  (let ((res ()))
+    (dolist (entry entries (nreverse (reduce #'nconc res)))
+      (typecase entry
+        (list (push (construct-alist entry) res))
+        (hash-table (push (enc-h entry) res))))))
 #||
 Here lies some code to convert hash tables into the horrible url encoding stripe uses.
 ||#
-
 
 (defclass env ()
   ((parents
     :accessor parents
     :initform ())
-   (pos
-    :accessor pos
-    :initform 0)
    (res
     :accessor res
     :initform ())))
 
-(defgeneric encode-by-type (key val env))
+(defmacro with-resetting-parents ((env) &body body)
+  (alexandria:with-gensyms (before)
+    `(let ((,before (parents ,env)))
+       (unwind-protect 
+            (locally ,@body)
+         (setf (parents ,env) ,before)))))
 
-(defmethod encode-by-type (key val env)
-  (with-accessors ((parents parents)
-                   (pos pos))
+(defun encode-key-array (parents key val)
+  (cons (format nil "~A~{[~A]~}[~A]" (first parents) (rest parents) key) val))
+
+(defun encode-array-array (parents val)
+  (cons (format nil "~A~{[~A]~}" (first parents) (rest parents)) val))
+
+(defun encode-key-val (key val)
+  (cons key val))
+
+(defun encode-hash-table (env hash-table)
+  (with-accessors ((res res)
+                   (parents parents))
       env
-    (cond ((and (null parents)
-                (zerop pos))
-           (cons key val))
-          ((and (null parents)
-                (not (zerop pos)))
-           (cons (format nil "~A[~D]" key pos) val)))))
+    (maphash (lambda (key val)
+               (cond ((and parents (stringp val));;nested key array
+                      (push (encode-key-array (reverse parents) key val) res))
+                     ((and parents (listp val))
+                      (with-resetting-parents (env)
+                        (push key parents)
+                        (loop :for n :from 0 :to (length val)
+                              :for ele :in val
+                              :do (with-resetting-parents (env)
+                                    (push n parents)
+                                    (if (hash-table-p ele)
+                                        (encode-hash-table env ele)
+                                        (push (encode-array-array (reverse parents) ele)
+                                              res))))))
+                     ((and (stringp key)
+                           (stringp val))
+                      ;;basic
+                      (print val)
+                      (push (encode-key-val key val) res))
+                     ((listp val)
+                      ;;array
+                      (with-resetting-parents (env)
+                        (push key parents)
+                        (loop :for n :from 0 :to (length val)
+                              :for ele :in val
+                              :do (with-resetting-parents (env)
+                                    (push n parents)
+                                    (if (hash-table-p ele)
+                                        (encode-hash-table env ele)
+                                        (push (encode-array-array (reverse parents)
+                                                                  ele)
+                                              res))))))))
+             hash-table)
+    (res env)))
 
-(defmethod encode-by-type ((key string) (val hash-table) env)
-  (push val (parents env))
-  (parse-hash val env)
-  (pop (parents env)))
+(defun enc-h (hash)
+  (encode-hash-table (make-instance 'env) hash))
 
-(defmethod encode-by-type ((key string) (val list) env)
-  (with-accessors ((pos pos)
-                   (res res))
-      env
-    (let ((before pos))
-      (dolist (ele val)
-        (push (encode-by-type key ele env) res)
-        (incf pos))
-      (setf pos before))))
 
-(defun parse-hash (hash env)
-  (maphash (lambda (key val)
-             (push (encode-by-type key val env) (res env)))
-           hash)
-  (res env))
+
+
+
+
+
+
+
