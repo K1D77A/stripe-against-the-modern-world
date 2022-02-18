@@ -239,7 +239,6 @@ Here lies some code to convert hash tables into the horrible url encoding stripe
                      ((and (stringp key)
                            (stringp val))
                       ;;basic
-                      (print val)
                       (push (encode-key-val key val) res))
                      ((listp val)
                       ;;array
