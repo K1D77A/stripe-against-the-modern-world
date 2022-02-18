@@ -106,7 +106,7 @@ SATMW> (ec *test2*)
  ("cats[0]" . "brown") ("cats[1]" . "white") ("cats[2]" . "black")
  ("fur" . "fluffy") ("colour" . "brown"))
 ```
-
+`ec` now also accepts hash-tables and will attempt to convert them into the correctly encoded format for Stripe. You can even combine lists written in the basic DSL I wrote with hash-tables to produce one large alist to pass to Stripe.
 ## Webhooks
 
 To verify the webhooks from Stripe you need to follow the instructions here:
