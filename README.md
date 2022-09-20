@@ -1,3 +1,5 @@
+# No longer maintained please see https://github.com/K1D77A/lisp-pay
+
 # stripe-against-the-modern-world
 
 This is a an implementation of the Stripe API. 
